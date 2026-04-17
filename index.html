@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LRMO Financial Planner</title>
+  <style>
+    :root {
+      --sage-50: #f4fbf7;
+      --sage-100: #e8f5ec;
+      --sage-200: #d3ebda;
+      --mint: #b7e4c7;
+      --emerald: #2d6a4f;
+      --emerald-2: #40916c;
+      --forest: #1b4332;
+      --forest-2: #143726;
+      --gold: #d7c59a;
+      --ink: #102218;
+      --muted: #5f7568;
+      --border: #cfe2d5;
+      --white: #ffffff;
+      --danger: #b3261e;
+      --warning: #b7791f;
+      --shadow: 0 10px 30px rgba(20, 55, 38, 0.12);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; font-family: "Segoe UI", Inter, Arial, sans-serif; background: linear-gradient(180deg, var(--sage-50), #edf7f1 40%, #f7fbf8 100%); color: var(--ink); }
+    body { min-width: 1280px; }
+    button, input, select { font: inherit; }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, rgba(20,55,38,0.98), rgba(27,67,50,0.98));
+      color: #eef8f2;
+      padding: 24px 18px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+      padding: 10px 8px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .logo {
+      width: 66px;
+      height: 66px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.25), transparent 35%),
+        linear-gradient(135deg, #dff6e7, #74c69d 45%, #2d6a4f 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 12px 26px rgba(0,0,0,0.24);
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 14px;
+    }
+
+    .logo span {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.15rem;
+      letter-spacing: 0.22rem;
+      color: #f6fff8;
+      font-weight: 700;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.2);
+      position: relative;
+      left: 2px;
+    }
+
+    .brand-copy h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: 0.03rem;
+    }
+
+    .brand-copy p {
+      margin: 6px 0 0;
+      color: rgba(238,248,242,0.72);
+      font-size: 0.92rem;
+      line-height: 1.35;
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      background: transparent;
+      color: #eaf5ee;
+      border: 1px solid transparent;
+      border-radius: 14px;
+      padding: 12px 14px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.08);
+      transform: translateX(2px);
+    }
+
+    .sidebar-footer {
+      margin-top: 22px;
+      padding: 14px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 16px;
+      color: rgba(238,248,242,0.78);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .main {
+      padding: 26px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: 1.7rem;
+      font-weight: 700;
+    }
+
+    .topbar p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .btn, .btn-secondary, .btn-ghost, .btn-danger {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .btn:hover, .btn-secondary:hover, .btn-ghost:hover, .btn-danger:hover { transform: translateY(-1px); }
+    .btn { background: linear-gradient(135deg, var(--forest), var(--emerald)); color: white; }
+    .btn-secondary { background: linear-gradient(135deg, var(--emerald-2), #74c69d); color: white; }
+    .btn-ghost { background: white; color: var(--forest); border: 1px solid var(--border); box-shadow: none; }
+    .btn-danger { background: #fff1f0; color: var(--danger); border: 1px solid #f1c7c4; box-shadow: none; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(207,226,213,0.9);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h3, .card h4 {
+      margin: 0 0 10px;
+    }
+
+    .card-subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+    }
+
+    .stat-card {
+      padding: 18px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(240,248,243,0.98));
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .stat-card .label {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      font-size: 1.95rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .stat-card .detail {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .form-grid.compact-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .form-grid.compact-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 0.88rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    input[type="text"], input[type="number"], input[type="date"], select {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #fcfffd;
+      border-radius: 12px;
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    input:focus, select:focus { border-color: var(--emerald); box-shadow: 0 0 0 3px rgba(64,145,108,0.12); }
+
+    .toggle-row, .inline-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #edf3ef;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: linear-gradient(180deg, #f5fbf7, #edf6f0);
+      color: var(--forest);
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03rem;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    td input, td select { min-width: 120px; }
+    td .row-actions { display: flex; gap: 8px; }
+
+    .summary-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--sage-100);
+      color: var(--forest);
+      border: 1px solid var(--border);
+      font-size: 0.88rem;
+    }
+
+    .chart-box {
+      background: linear-gradient(180deg, #ffffff, #f7fbf8);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .chart-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .chart-title h4 { margin: 0; }
+    .chart-subtitle { color: var(--muted); font-size: 0.88rem; }
+
+    svg.chart {
+      width: 100%;
+      height: 280px;
+      display: block;
+      background: linear-gradient(180deg, #fcfffd, #f3f9f5);
+      border-radius: 12px;
+      border: 1px solid #edf3ef;
+    }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .legend span { display: inline-flex; align-items: center; gap: 8px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+
+    .insight {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #f4fbf7, #eef7f1);
+      border: 1px solid var(--border);
+      line-height: 1.45;
+      color: var(--ink);
+    }
+
+    .warning {
+      background: #fff9ef;
+      border-color: #eed9ac;
+      color: #6f4b11;
+    }
+
+    .danger {
+      background: #fff4f3;
+      border-color: #f0c2bd;
+      color: #7f1d1d;
+    }
+
+    .small-note {
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+
+    .planner-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .planner-item {
+      display: grid;
+      grid-template-columns: 160px 1fr 160px;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: #fbfefc;
+      border: 1px solid var(--border);
+      align-items: center;
+    }
+
+    .planner-item .amount { font-weight: 700; text-align: right; }
+
+    .muted { color: var(--muted); }
+    .text-right { text-align: right; }
+    .positive { color: var(--emerald); }
+    .negative { color: var(--danger); }
+
+    .footer-space { height: 24px; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo"><span>LRMO</span></div>
+        <div class="brand-copy">
+          <h1>LRMO Planner</h1>
+          <p>Luxury-inspired household budget, debt, and net worth command center.</p>
+        </div>
+      </div>
+
+      <div class="nav-list" id="navList"></div>
+
+      <div class="sidebar-footer">
+        Built for long-range planning, bill timing, debt payoff, savings trajectory, and net worth visibility. Everything saves locally in your browser.
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">See your monthly picture, household runway, and long-term progress at a glance.</p>
+        </div>
+        <div class="toolbar">
+          <button class="btn-ghost" id="resetBtn">Reset All Data</button>
+          <button class="btn-secondary" id="importBtn">Import JSON Backup</button>
+          <button class="btn" id="exportBtn">Export JSON Backup</button>
+          <input type="file" id="jsonFileInput" accept="application/json" style="display:none;">
+        </div>
+      </div>
+
+      <section id="tabsContainer"></section>
+      <div class="footer-space"></div>
+    </main>
+  </div>
+
+  <input type="file" id="csvImportInput" accept=".csv" style="display:none;">
+
+  <script>
+    const STORAGE_KEY = 'lrmo-financial-planner-v1';
+
+    const tabMeta = [
+      { id: 'dashboard', label: 'Dashboard', subtitle: 'See your monthly picture, household runway, and long-term progress at a glance.' },
+      { id: 'income', label: 'Income', subtitle: 'Track all inflows and biweekly paychecks used in the planner.' },
+      { id: 'monthlyBills', label: 'Monthly Bills', subtitle: 'Capture recurring obligations, frequencies, and due dates.' },
+      { id: 'variableExpenses', label: 'Variable Expenses', subtitle: 'Track flexible spending categories and monthly estimates.' },
+      { id: 'debts', label: 'Debts', subtitle: 'Model balances, APR, payments, and payoff strategy recommendations.' },
+      { id: 'savings', label: 'Savings', subtitle: 'Keep all cash and long-term accounts on one tab with projections.' },
+      { id: 'netWorth', label: 'Net Worth', subtitle: 'Monitor assets, liabilities, and long-range household position.' },
+      { id: 'paycheckPlanner', label: 'Paycheck Planner', subtitle: 'See where each biweekly paycheck should go for maximum impact without missing bills.' },
+      { id: 'settings', label: 'Settings', subtitle: 'Control assumptions for growth, debt strategy, and planning preferences.' }
+    ];
+
+    const frequencyMultipliers = {
+      weekly: 52 / 12,
+      biweekly: 26 / 12,
+      semimonthly: 2,
+      monthly: 1,
+      quarterly: 1 / 3,
+      annual: 1 / 12
+    };
+
+    const defaultState = {
+      activeTab: 'dashboard',
+      settings: {
+        householdName: 'LRMO Household',
+        debtMethod: 'avalanche',
+        annualReturnDefault: 7,
+        emergencyReserveTargetMonths: 3,
+        paycheckPlannerSavingsWeight: 40,
+        paycheckPlannerDebtWeight: 60,
+        projectionMonths: 24,
+        useProjectedGrowth: true
+      },
+      income: [
+        { id: uid(), name: '', amount: '', frequency: 'biweekly', taxType: 'net', notes: '' }
+      ],
+      monthlyBills: [
+        { id: uid(), name: '', amount: '', frequency: 'monthly', dueDay: '', category: '', notes: '' }
+      ],
+      variableExpenses: [
+        { id: uid(), name: '', monthlyAmount: '', category: '', notes: '' }
+      ],
+      debts: [
+        { id: uid(), name: '', balance: '', apr: '', minimumPayment: '', extraPayment: '', dueDay: '', category: '' }
+      ],
+      savings: [
+        { id: uid(), name: '', type: 'Savings', balance: '', monthlyContribution: '', annualReturn: '', useGrowth: true, notes: '' }
+      ],
+      assets: [
+        { id: uid(), name: '', type: 'Asset', value: '', notes: '' }
+      ],
+      liabilities: [
+        { id: uid(), name: '', type: 'Liability', value: '', notes: '' }
+      ]
+    };
+
+    let state = loadState();
+    let currentCsvTarget = null;
+
+    function uid() {
+      return 'id-' + Math.random().toString(36).slice(2, 11);
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(defaultState);
+        const parsed = JSON.parse(raw);
+        return deepMerge(structuredClone(defaultState), parsed);
+      } catch (e) {
+        console.warn('Failed to load saved state.', e);
+        return structuredClone(defaultState);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function deepMerge(base, override) {
+      if (Array.isArray(base)) return Array.isArray(override) ? override : base;
+      const output = { ...base };
+      if (override && typeof override === 'object') {
+        Object.keys(override).forEach(key => {
+          output[key] = key in base ? deepMerge(base[key], override[key]) : override[key];
+        });
+      }
+      return output;
+    }
+
+    function n(value) {
+      const parsed = parseFloat(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function money(value) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number.isFinite(value) ? value : 0);
+    }
+
+    function money2(value) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(Number.isFinite(value) ? value : 0);
+    }
+
+    function pct(value) {
+      return `${(Number.isFinite(value) ? value : 0).toFixed(1)}%`;
+    }
+
+    function monthlyEquivalent(amount, frequency) {
+      return n(amount) * (frequencyMultipliers[frequency] || 1);
+    }
+
+    function sum(arr, fn) {
+      return arr.reduce((acc, item) => acc + fn(item), 0);
+    }
+
+    function getMonthlyIncome() {
+      return sum(state.income, item => monthlyEquivalent(item.amount, item.frequency));
+    }
+
+    function getMonthlyBills() {
+      return sum(state.monthlyBills, item => monthlyEquivalent(item.amount, item.frequency));
+    }
+
+    function getMonthlyVariableExpenses() {
+      return sum(state.variableExpenses, item => n(item.monthlyAmount));
+    }
+
+    function getMonthlyDebtMinimums() {
+      return sum(state.debts, item => n(item.minimumPayment) + n(item.extraPayment));
+    }
+
+    function getSavingsContributions() {
+      return sum(state.savings, item => n(item.monthlyContribution));
+    }
+
+    function getCashAndInvestmentsValue() {
+      return sum(state.savings, item => n(item.balance));
+    }
+
+    function getOtherAssetsValue() {
+      return sum(state.assets, item => n(item.value));
+    }
+
+    function getDebtsBalance() {
+      return sum(state.debts, item => n(item.balance));
+    }
+
+    function getOtherLiabilitiesValue() {
+      return sum(state.liabilities, item => n(item.value));
+    }
+
+    function getNetWorth() {
+      return getCashAndInvestmentsValue() + getOtherAssetsValue() - getDebtsBalance() - getOtherLiabilitiesValue();
+    }
+
+    function getFreeCashFlow() {
+      return getMonthlyIncome() - getMonthlyBills() - getMonthlyVariableExpenses() - getMonthlyDebtMinimums() - getSavingsContributions();
+    }
+
+    function getBiweeklyNetPay() {
+      return sum(state.income.filter(i => i.frequency === 'biweekly'), item => n(item.amount));
+    }
+
+    function getMonthlyObligations() {
+      return getMonthlyBills() + getMonthlyVariableExpenses() + getMonthlyDebtMinimums();
+    }
+
+    function projectSavings(months = state.settings.projectionMonths) {
+      const points = [];
+      let total = getCashAndInvestmentsValue();
+      points.push({ month: 0, value: total });
+      for (let i = 1; i <= months; i++) {
+        total = state.savings.reduce((acc, acct) => {
+          const startContribution = n(acct.monthlyContribution);
+          const current = acc.get(acct.id) ?? n(acct.balance);
+          const useGrowth = acct.useGrowth && state.settings.useProjectedGrowth;
+          const annualReturn = n(acct.annualReturn || state.settings.annualReturnDefault) / 100;
+          const next = (current + startContribution) * (useGrowth ? (1 + annualReturn / 12) : 1);
+          acc.set(acct.id, next);
+          return acc;
+        }, new Map(points[i - 1]?.accountMap || state.savings.map(acct => [acct.id, n(acct.balance)])));
+
+        const totalForMonth = Array.from(total.values()).reduce((a, b) => a + b, 0);
+        points.push({ month: i, value: totalForMonth, accountMap: total });
+      }
+      return points.map(p => ({ month: p.month, value: p.value }));
+    }
+
+    function projectNetWorth(months = state.settings.projectionMonths) {
+      let savingsBalances = new Map(state.savings.map(acct => [acct.id, n(acct.balance)]));
+      let debtBalances = new Map(state.debts.map(debt => [debt.id, n(debt.balance)]));
+      const results = [];
+
+      for (let m = 0; m <= months; m++) {
+        const savingsTotal = Array.from(savingsBalances.values()).reduce((a,b) => a+b, 0);
+        const debtTotal = Array.from(debtBalances.values()).reduce((a,b) => a+b, 0);
+        results.push({ month: m, value: savingsTotal + getOtherAssetsValue() - debtTotal - getOtherLiabilitiesValue() });
+
+        if (m === months) break;
+
+        state.savings.forEach(acct => {
+          const current = savingsBalances.get(acct.id) || 0;
+          const annualReturn = n(acct.annualReturn || state.settings.annualReturnDefault) / 100;
+          const next = (current + n(acct.monthlyContribution)) * ((acct.useGrowth && state.settings.useProjectedGrowth) ? (1 + annualReturn / 12) : 1);
+          savingsBalances.set(acct.id, next);
+        });
+
+        state.debts.forEach(debt => {
+          const current = debtBalances.get(debt.id) || 0;
+          const monthlyRate = n(debt.apr) / 100 / 12;
+          const interest = current * monthlyRate;
+          const payment = n(debt.minimumPayment) + n(debt.extraPayment);
+          const next = Math.max(0, current + interest - payment);
+          debtBalances.set(debt.id, next);
+        });
+      }
+      return results;
+    }
+
+    function calculateDebtPayoff(balance, apr, payment) {
+      let currentBalance = n(balance);
+      const monthlyRate = n(apr) / 100 / 12;
+      const monthlyPayment = n(payment);
+      if (currentBalance <= 0 || monthlyPayment <= 0) return { months: 0, totalInterest: 0, payoffDate: null, feasible: false };
+      if (monthlyRate > 0 && monthlyPayment <= currentBalance * monthlyRate) {
+        return { months: Infinity, totalInterest: Infinity, payoffDate: null, feasible: false };
+      }
+
+      let months = 0;
+      let interestTotal = 0;
+      while (currentBalance > 0.01 && months < 1200) {
+        const interest = currentBalance * monthlyRate;
+        interestTotal += interest;
+        currentBalance = currentBalance + interest - monthlyPayment;
+        months += 1;
+        if (currentBalance < 0) currentBalance = 0;
+      }
+
+      const payoffDate = new Date();
+      payoffDate.setMonth(payoffDate.getMonth() + months);
+      return { months, totalInterest: interestTotal, payoffDate, feasible: months < 1200 };
+    }
+
+    function getDebtRecommendations() {
+      const rows = state.debts
+        .filter(d => n(d.balance) > 0)
+        .map(d => {
+          const payment = n(d.minimumPayment) + n(d.extraPayment);
+          const payoff = calculateDebtPayoff(d.balance, d.apr, payment);
+          return { ...d, payment, payoff };
+        });
+
+      const avalanche = [...rows].sort((a,b) => n(b.apr) - n(a.apr) || n(a.balance) - n(b.balance));
+      const snowball = [...rows].sort((a,b) => n(a.balance) - n(b.balance) || n(b.apr) - n(a.apr));
+
+      return {
+        rows,
+        topAvalanche: avalanche[0] || null,
+        topSnowball: snowball[0] || null
+      };
+    }
+
+    function buildMonthlyDueBuckets() {
+      const paycheck1Days = [1, 14];
+      const paycheck2Days = [15, 31];
+      const bills = state.monthlyBills.filter(b => n(b.amount) > 0);
+      const debts = state.debts.filter(d => n(d.minimumPayment) + n(d.extraPayment) > 0).map(d => ({
+        name: d.name || 'Debt Payment',
+        amount: n(d.minimumPayment) + n(d.extraPayment),
+        dueDay: n(d.dueDay) || 1,
+        type: 'Debt'
+      }));
+
+      const allItems = [
+        ...bills.map(b => ({ name: b.name || 'Bill', amount: monthlyEquivalent(b.amount, b.frequency), dueDay: n(b.dueDay) || 1, type: 'Bill' })),
+        ...debts
+      ];
+
+      const p1 = allItems.filter(item => item.dueDay >= paycheck1Days[0] && item.dueDay <= paycheck1Days[1]);
+      const p2 = allItems.filter(item => item.dueDay >= paycheck2Days[0] && item.dueDay <= paycheck2Days[1]);
+      return { p1, p2 };
+    }
+
+    function getPlannerModel() {
+      const biweeklyIncome = getBiweeklyNetPay();
+      const dueBuckets = buildMonthlyDueBuckets();
+      const totalBiweeklyIncome = biweeklyIncome > 0 ? biweeklyIncome : getMonthlyIncome() / 2;
+      const monthlyVariable = getMonthlyVariableExpenses();
+      const monthlySavings = getSavingsContributions();
+      const weightSavings = n(state.settings.paycheckPlannerSavingsWeight);
+      const weightDebt = n(state.settings.paycheckPlannerDebtWeight);
+
+      const baseAllocation = {
+        paycheck1: {
+          income: totalBiweeklyIncome,
+          bills: sum(dueBuckets.p1, x => x.amount),
+          variable: monthlyVariable / 2,
+          debtFocus: 0,
+          savings: 0
+        },
+        paycheck2: {
+          income: totalBiweeklyIncome,
+          bills: sum(dueBuckets.p2, x => x.amount),
+          variable: monthlyVariable / 2,
+          debtFocus: 0,
+          savings: 0
+        }
+      };
+
+      ['paycheck1','paycheck2'].forEach(key => {
+        const available = Math.max(0, baseAllocation[key].income - baseAllocation[key].bills - baseAllocation[key].variable);
+        const idealSavingsHalf = monthlySavings / 2;
+        const savingsGoal = Math.min(idealSavingsHalf, available * (weightSavings / (weightSavings + weightDebt || 1)));
+        const debtGoal = Math.max(0, available - savingsGoal);
+        baseAllocation[key].savings = savingsGoal;
+        baseAllocation[key].debtFocus = debtGoal;
+        baseAllocation[key].leftover = baseAllocation[key].income - baseAllocation[key].bills - baseAllocation[key].variable - savingsGoal - debtGoal;
+      });
+
+      return {
+        dueBuckets,
+        baseAllocation,
+        recommendation: buildPlannerRecommendation(baseAllocation)
+      };
+    }
+
+    function buildPlannerRecommendation(baseAllocation) {
+      const debtRec = getDebtRecommendations();
+      const focus = state.settings.debtMethod === 'snowball' ? debtRec.topSnowball : debtRec.topAvalanche;
+      const freeCashFlow = getFreeCashFlow();
+      let note = 'Bills are funded first, then flexible spending, then savings and extra debt reduction.';
+      if (focus?.name) {
+        note += ` Your highest impact extra debt target is ${focus.name} based on the ${state.settings.debtMethod} method.`;
+      }
+      if (freeCashFlow < 0) {
+        note += ' Your current monthly plan is cash-negative, so reduce variable spending, reduce contributions temporarily, or increase income before accelerating debt payoff.';
+      }
+      return note;
+    }
+
+    function buildSpendingBreakdown() {
+      return [
+        { label: 'Bills', value: getMonthlyBills(), color: '#1b4332' },
+        { label: 'Variable', value: getMonthlyVariableExpenses(), color: '#40916c' },
+        { label: 'Debt', value: getMonthlyDebtMinimums(), color: '#74c69d' },
+        { label: 'Savings', value: getSavingsContributions(), color: '#b7e4c7' }
+      ].filter(x => x.value > 0);
+    }
+
+    function render() {
+      saveState();
+      renderNav();
+      renderTabs();
+      updateHeader();
+    }
+
+    function renderNav() {
+      const nav = document.getElementById('navList');
+      nav.innerHTML = tabMeta.map(tab => `
+        <button class="nav-btn ${state.activeTab === tab.id ? 'active' : ''}" data-tab="${tab.id}">${tab.label}</button>
+      `).join('');
+      nav.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.activeTab = btn.dataset.tab;
+          render();
+        });
+      });
+    }
+
+    function updateHeader() {
+      const meta = tabMeta.find(t => t.id === state.activeTab) || tabMeta[0];
+      document.getElementById('pageTitle').textContent = meta.label;
+      document.getElementById('pageSubtitle').textContent = meta.subtitle;
+    }
+
+    function renderTabs() {
+      const container = document.getElementById('tabsContainer');
+      container.innerHTML = `
+        <div id="dashboard" class="tab-panel ${state.activeTab === 'dashboard' ? 'active' : ''}">${renderDashboardTab()}</div>
+        <div id="income" class="tab-panel ${state.activeTab === 'income' ? 'active' : ''}">${renderIncomeTab()}</div>
+        <div id="monthlyBills" class="tab-panel ${state.activeTab === 'monthlyBills' ? 'active' : ''}">${renderBillsTab()}</div>
+        <div id="variableExpenses" class="tab-panel ${state.activeTab === 'variableExpenses' ? 'active' : ''}">${renderVariableTab()}</div>
+        <div id="debts" class="tab-panel ${state.activeTab === 'debts' ? 'active' : ''}">${renderDebtsTab()}</div>
+        <div id="savings" class="tab-panel ${state.activeTab === 'savings' ? 'active' : ''}">${renderSavingsTab()}</div>
+        <div id="netWorth" class="tab-panel ${state.activeTab === 'netWorth' ? 'active' : ''}">${renderNetWorthTab()}</div>
+        <div id="paycheckPlanner" class="tab-panel ${state.activeTab === 'paycheckPlanner' ? 'active' : ''}">${renderPlannerTab()}</div>
+        <div id="settings" class="tab-panel ${state.activeTab === 'settings' ? 'active' : ''}">${renderSettingsTab()}</div>
+      `;
+      bindEvents();
+      renderCharts();
+    }
+
+    function renderDashboardTab() {
+      const monthlyIncome = getMonthlyIncome();
+      const monthlyBills = getMonthlyBills();
+      const monthlyVariable = getMonthlyVariableExpenses();
+      const monthlyDebt = getMonthlyDebtMinimums();
+      const monthlySavings = getSavingsContributions();
+      const freeCash = getFreeCashFlow();
+      const netWorth = getNetWorth();
+      const debtBalance = getDebtsBalance();
+      const spendingRate = monthlyIncome ? ((monthlyBills + monthlyVariable + monthlyDebt + monthlySavings) / monthlyIncome * 100) : 0;
+      const debtRec = getDebtRecommendations();
+      const planner = getPlannerModel();
+
+      return `
+        <div class="grid cols-4">
+          <div class="stat-card"><div class="label">Monthly Income</div><div class="value">${money(monthlyIncome)}</div><div class="detail">Across all recurring income sources</div></div>
+          <div class="stat-card"><div class="label">Monthly Obligations</div><div class="value">${money(monthlyBills + monthlyVariable + monthlyDebt)}</div><div class="detail">Bills, variable expenses, and debt payments</div></div>
+          <div class="stat-card"><div class="label">Monthly Free Cash Flow</div><div class="value ${freeCash >= 0 ? 'positive' : 'negative'}">${money(freeCash)}</div><div class="detail">After expenses, debt, and savings contributions</div></div>
+          <div class="stat-card"><div class="label">Net Worth</div><div class="value ${netWorth >= 0 ? 'positive' : 'negative'}">${money(netWorth)}</div><div class="detail">Assets minus debts and liabilities</div></div>
+        </div>
+
+        <div class="grid cols-2" style="margin-top:18px;">
+          <div class="card">
+            <div class="section-header"><div><h3>Household Snapshot</h3><div class="card-subtitle">Your current monthly operating picture</div></div></div>
+            <div class="summary-strip">
+              <div class="pill">Spending Rate: <strong>${pct(spendingRate)}</strong></div>
+              <div class="pill">Debt Balance: <strong>${money(debtBalance)}</strong></div>
+              <div class="pill">Savings Contributions: <strong>${money(monthlySavings)}</strong></div>
+              <div class="pill">Biweekly Net Pay: <strong>${money(getBiweeklyNetPay())}</strong></div>
+            </div>
+            <div class="insight ${freeCash < 0 ? 'danger' : ''}" style="margin-top:12px;">
+              ${freeCash < 0
+                ? 'Your plan is currently spending more than it brings in after savings contributions. Consider reducing flexible spending, lowering contributions temporarily, or restructuring debt payments.'
+                : 'Your plan is currently funding bills, debt, and savings without running negative. Any surplus can be directed to emergency savings or accelerated payoff.'}
+            </div>
+            <div class="insight" style="margin-top:12px;">
+              ${planner.recommendation}
+            </div>
+            ${debtRec.topAvalanche ? `<div class="small-note" style="margin-top:12px;">Avalanche focus: <strong>${debtRec.topAvalanche.name || 'Unnamed Debt'}</strong> | Snowball focus: <strong>${debtRec.topSnowball?.name || 'Unnamed Debt'}</strong></div>` : `<div class="small-note" style="margin-top:12px;">Add debts to unlock payoff dates and strategy guidance.</div>`}
+          </div>
+
+          <div class="card">
+            <div class="section-header"><div><h3>Paycheck Timing Preview</h3><div class="card-subtitle">Split obligations between the first and second paycheck window</div></div></div>
+            <div class="planner-list">
+              ${renderPaycheckPreviewCard('Paycheck 1', planner.baseAllocation.paycheck1)}
+              ${renderPaycheckPreviewCard('Paycheck 2', planner.baseAllocation.paycheck2)}
+            </div>
+          </div>
+        </div>
+
+        <div class="grid cols-2" style="margin-top:18px;">
+          <div class="chart-box">
+            <div class="chart-title"><div><h4>Net Worth Trend</h4><div class="chart-subtitle">Projected household position over ${state.settings.projectionMonths} months</div></div></div>
+            <svg id="netWorthChart" class="chart" aria-label="Net worth trend"></svg>
+            <div class="legend"><span><i class="dot" style="background:#1b4332"></i>Net Worth</span></div>
+          </div>
+          <div class="chart-box">
+            <div class="chart-title"><div><h4>Savings Projection</h4><div class="chart-subtitle">Contribution growth with optional annual return assumptions</div></div></div>
+            <svg id="savingsChart" class="chart" aria-label="Savings projection"></svg>
+            <div class="legend"><span><i class="dot" style="background:#40916c"></i>Savings Value</span></div>
+          </div>
+        </div>
+
+        <div class="grid cols-2" style="margin-top:18px;">
+          <div class="chart-box">
+            <div class="chart-title"><div><h4>Monthly Spending Mix</h4><div class="chart-subtitle">How your cash flow is allocated today</div></div></div>
+            <svg id="spendingChart" class="chart" aria-label="Spending mix"></svg>
+            <div class="legend">
+              <span><i class="dot" style="background:#1b4332"></i>Bills</span>
+              <span><i class="dot" style="background:#40916c"></i>Variable</span>
+              <span><i class="dot" style="background:#74c69d"></i>Debt</span>
+              <span><i class="dot" style="background:#b7e4c7"></i>Savings</span>
+            </div>
+          </div>
+          <div class="chart-box">
+            <div class="chart-title"><div><h4>Debt Payoff Timeline</h4><div class="chart-subtitle">Estimated months to zero using current payments</div></div></div>
+            <svg id="debtChart" class="chart" aria-label="Debt payoff timeline"></svg>
+            <div class="legend"><span><i class="dot" style="background:#2d6a4f"></i>Months to Payoff</span></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPaycheckPreviewCard(title, block) {
+      return `
+        <div class="planner-item">
+          <div><strong>${title}</strong><div class="muted">Per biweekly cycle</div></div>
+          <div>
+            Bills ${money(block.bills)} · Variable ${money(block.variable)} · Savings ${money(block.savings)} · Extra Debt ${money(block.debtFocus)}
+          </div>
+          <div class="amount ${block.leftover >= 0 ? 'positive' : 'negative'}">${money(block.leftover)}</div>
+        </div>
+      `;
+    }
+
+    function renderIncomeTab() {
+      return renderEditableTableSection({
+        title: 'Income Sources',
+        subtitle: 'Use biweekly for take-home paychecks so the planner can split spending by paycheck.',
+        key: 'income',
+        columns: [
+          { key: 'name', label: 'Income Source', type: 'text', placeholder: 'Salary, side income, etc.' },
+          { key: 'amount', label: 'Amount', type: 'number', step: '0.01' },
+          { key: 'frequency', label: 'Frequency', type: 'select', options: frequencyOptions() },
+          { key: 'taxType', label: 'Type', type: 'select', options: [{value:'net',label:'Net'},{value:'gross',label:'Gross'}] },
+          { key: 'notes', label: 'Notes', type: 'text', placeholder: 'Optional' }
+        ],
+        summary: `Monthly income equivalent: <strong>${money(getMonthlyIncome())}</strong>`
+      });
+    }
+
+    function renderBillsTab() {
+      return renderEditableTableSection({
+        title: 'Recurring Bills',
+        subtitle: 'Capture rent, insurance, utilities, subscriptions, and any other fixed recurring obligations.',
+        key: 'monthlyBills',
+        columns: [
+          { key: 'name', label: 'Bill', type: 'text', placeholder: 'Rent, car insurance, etc.' },
+          { key: 'amount', label: 'Amount', type: 'number', step: '0.01' },
+          { key: 'frequency', label: 'Frequency', type: 'select', options: frequencyOptions() },
+          { key: 'dueDay', label: 'Due Day', type: 'number', step: '1', min: '1', max: '31' },
+          { key: 'category', label: 'Category', type: 'text', placeholder: 'Housing, Auto, Utilities' },
+          { key: 'notes', label: 'Notes', type: 'text', placeholder: 'Optional' }
+        ],
+        summary: `Monthly bill equivalent: <strong>${money(getMonthlyBills())}</strong>`
+      });
+    }
+
+    function renderVariableTab() {
+      return renderEditableTableSection({
+        title: 'Variable Expenses',
+        subtitle: 'Track groceries, gas, dining, shopping, childcare, entertainment, and any spending that changes month to month.',
+        key: 'variableExpenses',
+        columns: [
+          { key: 'name', label: 'Category', type: 'text', placeholder: 'Groceries, gas, dining, etc.' },
+          { key: 'monthlyAmount', label: 'Monthly Estimate', type: 'number', step: '0.01' },
+          { key: 'category', label: 'Group', type: 'text', placeholder: 'Home, Lifestyle, Family' },
+          { key: 'notes', label: 'Notes', type: 'text', placeholder: 'Optional' }
+        ],
+        summary: `Monthly variable spending: <strong>${money(getMonthlyVariableExpenses())}</strong>`
+      });
+    }
+
+    function renderDebtsTab() {
+      const rec = getDebtRecommendations();
+      return `
+        ${renderEditableTableSection({
+          title: 'Debts',
+          subtitle: 'Track APR, required payments, extra payments, and estimated payoff dates.',
+          key: 'debts',
+          columns: [
+            { key: 'name', label: 'Debt', type: 'text', placeholder: 'Credit card, auto loan, etc.' },
+            { key: 'balance', label: 'Balance', type: 'number', step: '0.01' },
+            { key: 'apr', label: 'APR %', type: 'number', step: '0.01' },
+            { key: 'minimumPayment', label: 'Minimum Payment', type: 'number', step: '0.01' },
+            { key: 'extraPayment', label: 'Extra Payment', type: 'number', step: '0.01' },
+            { key: 'dueDay', label: 'Due Day', type: 'number', step: '1', min: '1', max: '31' },
+            { key: 'category', label: 'Category', type: 'text', placeholder: 'Card, loan, student, etc.' }
+          ],
+          summary: `Total debt balance: <strong>${money(getDebtsBalance())}</strong> | Monthly debt payments: <strong>${money(getMonthlyDebtMinimums())}</strong>`
+        })}
+
+        <div class="grid cols-2" style="margin-top:18px;">
+          <div class="card">
+            <div class="section-header"><div><h3>Debt Strategy Recommendation</h3><div class="card-subtitle">Compare highest impact debt targets</div></div></div>
+            <div class="insight">
+              ${rec.topAvalanche ? `Avalanche targets <strong>${rec.topAvalanche.name || 'Unnamed Debt'}</strong> first because it has the highest APR. Snowball targets <strong>${rec.topSnowball?.name || 'Unnamed Debt'}</strong> first because it has the smallest balance.` : 'Add debt balances, APR, and payments to activate strategy recommendations.'}
+            </div>
+            <div class="summary-strip" style="margin-top:12px;">
+              <div class="pill">Selected Method: <strong>${state.settings.debtMethod}</strong></div>
+              <div class="pill">Recommended Focus: <strong>${(state.settings.debtMethod === 'snowball' ? rec.topSnowball : rec.topAvalanche)?.name || 'None yet'}</strong></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-header"><div><h3>Payoff Estimates</h3><div class="card-subtitle">Estimated using current required plus extra payments</div></div></div>
+            <div class="planner-list">
+              ${rec.rows.length ? rec.rows.map(row => renderDebtEstimate(row)).join('') : '<div class="small-note">No debt data entered yet.</div>'}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDebtEstimate(row) {
+      const p = row.payoff;
+      const feasible = p.feasible && Number.isFinite(p.months);
+      return `
+        <div class="planner-item">
+          <div><strong>${row.name || 'Unnamed Debt'}</strong><div class="muted">APR ${pct(n(row.apr))}</div></div>
+          <div>
+            ${feasible ? `Payment ${money(row.payment)} · ${p.months} months · ${money(p.totalInterest)} estimated interest` : 'Payment is too low to amortize this debt at the current APR.'}
+          </div>
+          <div class="amount ${feasible ? 'positive' : 'negative'}">${feasible ? new Intl.DateTimeFormat('en-US',{month:'short', year:'numeric'}).format(p.payoffDate) : 'Not feasible'}</div>
+        </div>
+      `;
+    }
+
+    function renderSavingsTab() {
+      return `
+        ${renderEditableTableSection({
+          title: 'Savings, Retirement, and Education Accounts',
+          subtitle: 'Keep savings, 401(k), Roth IRA, HSA, 529, and other long-term accounts together on one tab.',
+          key: 'savings',
+          columns: [
+            { key: 'name', label: 'Account', type: 'text', placeholder: 'Checking, 401(k), Roth IRA, etc.' },
+            { key: 'type', label: 'Type', type: 'select', options: [
+              {value:'Checking',label:'Checking'},
+              {value:'Savings',label:'Savings'},
+              {value:'Emergency Fund',label:'Emergency Fund'},
+              {value:'401(k)',label:'401(k)'},
+              {value:'Roth IRA',label:'Roth IRA'},
+              {value:'HSA',label:'HSA'},
+              {value:'529',label:'529'},
+              {value:'Brokerage',label:'Brokerage'},
+              {value:'Other',label:'Other'}
+            ]},
+            { key: 'balance', label: 'Current Balance', type: 'number', step: '0.01' },
+            { key: 'monthlyContribution', label: 'Monthly Contribution', type: 'number', step: '0.01' },
+            { key: 'annualReturn', label: 'Annual Return %', type: 'number', step: '0.01' },
+            { key: 'useGrowth', label: 'Use Growth', type: 'select', options: [{value:true,label:'Yes'},{value:false,label:'No'}] },
+            { key: 'notes', label: 'Notes', type: 'text', placeholder: 'Optional' }
+          ],
+          summary: `Total account value: <strong>${money(getCashAndInvestmentsValue())}</strong> | Monthly contributions: <strong>${money(getSavingsContributions())}</strong>`
+        })}
+
+        <div class="grid cols-2" style="margin-top:18px;">
+          <div class="chart-box">
+            <div class="chart-title"><div><h4>Savings Growth Detail</h4><div class="chart-subtitle">Projected using contributions and optional estimated growth</div></div></div>
+            <svg id="savingsChartSecondary" class="chart"></svg>
+          </div>
+          <div class="card">
+            <div class="section-header"><div><h3>Projection Notes</h3><div class="card-subtitle">How the trajectory is modeled</div></div></div>
+            <div class="insight">Each month adds the contribution you entered for each account. If growth is enabled, the selected annual return is applied monthly.</div>
+            <div class="summary-strip" style="margin-top:12px;">
+              <div class="pill">Default Return: <strong>${pct(state.settings.annualReturnDefault)}</strong></div>
+              <div class="pill">Projection Length: <strong>${state.settings.projectionMonths} months</strong></div>
+              <div class="pill">Growth Toggle: <strong>${state.settings.useProjectedGrowth ? 'On' : 'Off'}</strong></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderNetWorthTab() {
+      return `
+        <div class="grid cols-2">
+          <div>
+            ${renderEditableTableSection({
+              title: 'Other Assets',
+              subtitle: 'Track home value, vehicles, property, or any non-cash asset you want included in net worth.',
+              key: 'assets',
+              columns: [
+                { key: 'name', label: 'Asset', type: 'text', placeholder: 'Home, car, jewelry, etc.' },
+                { key: 'type', label: 'Type', type: 'text', placeholder: 'Home, Auto, Personal Property' },
+                { key: 'value', label: 'Estimated Value', type: 'number', step: '0.01' },
+                { key: 'notes', label: 'Notes', type: 'text', placeholder: 'Optional' }
+              ],
+              summary: `Other asset value: <strong>${money(getOtherAssetsValue())}</strong>`
+            })}
+          </div>
+          <div>
+            ${renderEditableTableSection({
+              title: 'Other Liabilities',
+              subtitle: 'Track personal loans, tax liabilities, or any obligation not listed on the debt tab.',
+              key: 'liabilities',
+              columns: [
+                { key: 'name', label: 'Liability', type: 'text', placeholder: 'Tax bill, personal note, etc.' },
+                { key: 'type', label: 'Type', type: 'text', placeholder: 'Tax, personal loan, etc.' },
+                { key: 'value', label: 'Current Value', type: 'number', step: '0.01' },
+                { key: 'notes', label: 'Notes', type: 'text', placeholder: 'Optional' }
+              ],
+              summary: `Other liabilities: <strong>${money(getOtherLiabilitiesValue())}</strong>`
+            })}
+          </div>
+        </div>
+
+        <div class="grid cols-3" style="margin-top:18px;">
+          <div class="stat-card"><div class="label">Cash and Investment Accounts</div><div class="value">${money(getCashAndInvestmentsValue())}</div><div class="detail">From the savings tab</div></div>
+          <div class="stat-card"><div class="label">Total Liabilities</div><div class="value negative">${money(getDebtsBalance() + getOtherLiabilitiesValue())}</div><div class="detail">Debt balances plus other liabilities</div></div>
+          <div class="stat-card"><div class="label">Current Net Worth</div><div class="value ${getNetWorth() >= 0 ? 'positive' : 'negative'}">${money(getNetWorth())}</div><div class="detail">Full household position</div></div>
+        </div>
+
+        <div class="chart-box" style="margin-top:18px;">
+          <div class="chart-title"><div><h4>Net Worth Projection</h4><div class="chart-subtitle">Includes cash accounts, debt balances, other assets, and liabilities</div></div></div>
+          <svg id="netWorthChartSecondary" class="chart"></svg>
+        </div>
+      `;
+    }
+
+    function renderPlannerTab() {
+      const planner = getPlannerModel();
+      const focus = (state.settings.debtMethod === 'snowball' ? getDebtRecommendations().topSnowball : getDebtRecommendations().topAvalanche)?.name || 'No debt focus yet';
+      return `
+        <div class="grid cols-2">
+          <div class="card">
+            <div class="section-header"><div><h3>Planner Logic</h3><div class="card-subtitle">Cash is allocated in a protective order to avoid running short</div></div></div>
+            <div class="planner-list">
+              ${renderPaycheckPreviewCard('Paycheck 1', planner.baseAllocation.paycheck1)}
+              ${renderPaycheckPreviewCard('Paycheck 2', planner.baseAllocation.paycheck2)}
+            </div>
+            <div class="insight" style="margin-top:12px;">${planner.recommendation}</div>
+            <div class="summary-strip" style="margin-top:12px;">
+              <div class="pill">Debt Focus: <strong>${focus}</strong></div>
+              <div class="pill">Savings Weight: <strong>${state.settings.paycheckPlannerSavingsWeight}</strong></div>
+              <div class="pill">Debt Weight: <strong>${state.settings.paycheckPlannerDebtWeight}</strong></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-header"><div><h3>Due by Paycheck Window</h3><div class="card-subtitle">Bills and debt payments are grouped by due date</div></div></div>
+            <div class="grid cols-2">
+              <div>
+                <h4>Paycheck 1</h4>
+                <div class="planner-list">${planner.dueBuckets.p1.length ? planner.dueBuckets.p1.map(item => plannerDueItem(item)).join('') : '<div class="small-note">No items due in days 1-14.</div>'}</div>
+              </div>
+              <div>
+                <h4>Paycheck 2</h4>
+                <div class="planner-list">${planner.dueBuckets.p2.length ? planner.dueBuckets.p2.map(item => plannerDueItem(item)).join('') : '<div class="small-note">No items due in days 15-31.</div>'}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <div class="section-header"><div><h3>How Highest-Impact Allocation Works</h3><div class="card-subtitle">The planner balances debt payoff, savings progress, and monthly obligations</div></div></div>
+          <div class="insight">Priority order: 1) fund bills due in the paycheck window, 2) reserve flexible spending, 3) allocate to savings and extra debt based on your selected weights, 4) surface any remaining surplus. This prevents a recommendation that leaves you unable to cover core monthly expenses.</div>
+        </div>
+      `;
+    }
+
+    function plannerDueItem(item) {
+      return `<div class="planner-item"><div><strong>${item.name}</strong><div class="muted">Due day ${item.dueDay}</div></div><div>${item.type}</div><div class="amount">${money(item.amount)}</div></div>`;
+    }
+
+    function renderSettingsTab() {
+      return `
+        <div class="card">
+          <div class="section-header"><div><h3>Planner Settings</h3><div class="card-subtitle">Change long-range assumptions and planning weights</div></div></div>
+          <div class="form-grid">
+            ${settingsField('householdName', 'Household Name', 'text')}
+            ${settingsField('annualReturnDefault', 'Default Annual Return %', 'number', '0.01')}
+            ${settingsField('projectionMonths', 'Projection Months', 'number', '1')}
+            ${settingsSelect('debtMethod', 'Debt Strategy', [{value:'avalanche',label:'Avalanche'},{value:'snowball',label:'Snowball'}])}
+            ${settingsField('paycheckPlannerSavingsWeight', 'Planner Savings Weight', 'number', '1')}
+            ${settingsField('paycheckPlannerDebtWeight', 'Planner Debt Weight', 'number', '1')}
+            ${settingsField('emergencyReserveTargetMonths', 'Emergency Reserve Target (Months)', 'number', '1')}
+            ${settingsSelect('useProjectedGrowth', 'Use Projected Growth', [{value:true,label:'Yes'},{value:false,label:'No'}])}
+          </div>
+          <div class="small-note" style="margin-top:12px;">Savings and debt weights control how leftover paycheck money is split after bills and variable spending are covered.</div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <div class="section-header"><div><h3>CSV and Backup Tools</h3><div class="card-subtitle">Move your data in and out as needed</div></div></div>
+          <div class="toggle-row">
+            <button class="btn-ghost csv-export" data-target="income">Export Income CSV</button>
+            <button class="btn-ghost csv-export" data-target="monthlyBills">Export Bills CSV</button>
+            <button class="btn-ghost csv-export" data-target="variableExpenses">Export Variable Expenses CSV</button>
+            <button class="btn-ghost csv-export" data-target="debts">Export Debts CSV</button>
+            <button class="btn-ghost csv-export" data-target="savings">Export Savings CSV</button>
+            <button class="btn-ghost csv-export" data-target="assets">Export Assets CSV</button>
+            <button class="btn-ghost csv-export" data-target="liabilities">Export Liabilities CSV</button>
+          </div>
+          <div class="toggle-row" style="margin-top:12px;">
+            <button class="btn-secondary csv-import" data-target="income">Import Income CSV</button>
+            <button class="btn-secondary csv-import" data-target="monthlyBills">Import Bills CSV</button>
+            <button class="btn-secondary csv-import" data-target="variableExpenses">Import Variable Expenses CSV</button>
+            <button class="btn-secondary csv-import" data-target="debts">Import Debts CSV</button>
+            <button class="btn-secondary csv-import" data-target="savings">Import Savings CSV</button>
+            <button class="btn-secondary csv-import" data-target="assets">Import Assets CSV</button>
+            <button class="btn-secondary csv-import" data-target="liabilities">Import Liabilities CSV</button>
+          </div>
+          <div class="small-note" style="margin-top:12px;">CSV import expects the same column headers used by the exported file.</div>
+        </div>
+      `;
+    }
+
+    function settingsField(key, label, type, step='') {
+      return `
+        <div class="field">
+          <label>${label}</label>
+          <input type="${type}" data-settings-key="${key}" value="${state.settings[key]}">
+        </div>
+      `;
+    }
+
+    function settingsSelect(key, label, options) {
+      return `
+        <div class="field">
+          <label>${label}</label>
+          <select data-settings-key="${key}">
+            ${options.map(opt => `<option value="${opt.value}" ${String(state.settings[key]) === String(opt.value) ? 'selected' : ''}>${opt.label}</option>`).join('')}
+          </select>
+        </div>
+      `;
+    }
+
+    function renderEditableTableSection({ title, subtitle, key, columns, summary }) {
+      const rows = state[key] || [];
+      return `
+        <div class="card">
+          <div class="section-header">
+            <div>
+              <h3>${title}</h3>
+              <div class="card-subtitle">${subtitle}</div>
+            </div>
+            <div class="section-actions">
+              <button class="btn-ghost add-row" data-key="${key}">Add Row</button>
+              <button class="btn-ghost csv-export" data-target="${key}">Export CSV</button>
+              <button class="btn-secondary csv-import" data-target="${key}">Import CSV</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  ${columns.map(col => `<th>${col.label}</th>`).join('')}
+                  <th>Monthly Equivalent</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows.map((row, index) => `
+                  <tr>
+                    ${columns.map(col => `<td>${renderCell(key, index, row, col)}</td>`).join('')}
+                    <td>${money(resolveMonthlyEquivalentForRow(key, row))}</td>
+                    <td><div class="row-actions"><button class="btn-danger delete-row" data-key="${key}" data-index="${index}">Delete</button></div></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          <div class="summary-strip"><div class="pill">${summary}</div></div>
+        </div>
+      `;
+    }
+
+    function resolveMonthlyEquivalentForRow(key, row) {
+      if (key === 'income') return monthlyEquivalent(row.amount, row.frequency);
+      if (key === 'monthlyBills') return monthlyEquivalent(row.amount, row.frequency);
+      if (key === 'variableExpenses') return n(row.monthlyAmount);
+      if (key === 'debts') return n(row.minimumPayment) + n(row.extraPayment);
+      if (key === 'savings') return n(row.monthlyContribution);
+      if (key === 'assets') return n(row.value);
+      if (key === 'liabilities') return n(row.value);
+      return 0;
+    }
+
+    function renderCell(key, index, row, col) {
+      const value = row[col.key] ?? '';
+      if (col.type === 'select') {
+        return `
+          <select data-key="${key}" data-index="${index}" data-field="${col.key}">
+            ${col.options.map(opt => `<option value="${opt.value}" ${String(value) === String(opt.value) ? 'selected' : ''}>${opt.label}</option>`).join('')}
+          </select>
+        `;
+      }
+      return `<input type="${col.type}" ${col.step ? `step="${col.step}"` : ''} ${col.min ? `min="${col.min}"` : ''} ${col.max ? `max="${col.max}"` : ''} placeholder="${col.placeholder || ''}" data-key="${key}" data-index="${index}" data-field="${col.key}" value="${value}">`;
+    }
+
+    function frequencyOptions() {
+      return [
+        { value: 'weekly', label: 'Weekly' },
+        { value: 'biweekly', label: 'Biweekly' },
+        { value: 'semimonthly', label: 'Semi-monthly' },
+        { value: 'monthly', label: 'Monthly' },
+        { value: 'quarterly', label: 'Quarterly' },
+        { value: 'annual', label: 'Annual' }
+      ];
+    }
+
+    function bindEvents() {
+      document.querySelectorAll('input[data-key], select[data-key]').forEach(el => {
+        el.addEventListener('input', handleFieldChange);
+        el.addEventListener('change', handleFieldChange);
+      });
+
+      document.querySelectorAll('.add-row').forEach(btn => {
+        btn.addEventListener('click', () => addRow(btn.dataset.key));
+      });
+
+      document.querySelectorAll('.delete-row').forEach(btn => {
+        btn.addEventListener('click', () => deleteRow(btn.dataset.key, Number(btn.dataset.index)));
+      });
+
+      document.querySelectorAll('[data-settings-key]').forEach(el => {
+        el.addEventListener('input', handleSettingsChange);
+        el.addEventListener('change', handleSettingsChange);
+      });
+
+      document.querySelectorAll('.csv-export').forEach(btn => {
+        btn.addEventListener('click', () => exportCsv(btn.dataset.target));
+      });
+
+      document.querySelectorAll('.csv-import').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentCsvTarget = btn.dataset.target;
+          document.getElementById('csvImportInput').click();
+        });
+      });
+    }
+
+    function handleFieldChange(e) {
+      const key = e.target.dataset.key;
+      const index = Number(e.target.dataset.index);
+      const field = e.target.dataset.field;
+      let value = e.target.value;
+      if (value === 'true') value = true;
+      if (value === 'false') value = false;
+      state[key][index][field] = value;
+      render();
+    }
+
+    function handleSettingsChange(e) {
+      const key = e.target.dataset.settingsKey;
+      let value = e.target.value;
+      if (value === 'true') value = true;
+      else if (value === 'false') value = false;
+      else if (e.target.type === 'number') value = n(value);
+      state.settings[key] = value;
+      render();
+    }
+
+    function addRow(key) {
+      const templates = {
+        income: { id: uid(), name: '', amount: '', frequency: 'biweekly', taxType: 'net', notes: '' },
+        monthlyBills: { id: uid(), name: '', amount: '', frequency: 'monthly', dueDay: '', category: '', notes: '' },
+        variableExpenses: { id: uid(), name: '', monthlyAmount: '', category: '', notes: '' },
+        debts: { id: uid(), name: '', balance: '', apr: '', minimumPayment: '', extraPayment: '', dueDay: '', category: '' },
+        savings: { id: uid(), name: '', type: 'Savings', balance: '', monthlyContribution: '', annualReturn: '', useGrowth: true, notes: '' },
+        assets: { id: uid(), name: '', type: 'Asset', value: '', notes: '' },
+        liabilities: { id: uid(), name: '', type: 'Liability', value: '', notes: '' }
+      };
+      state[key].push(templates[key]);
+      render();
+    }
+
+    function deleteRow(key, index) {
+      state[key].splice(index, 1);
+      if (!state[key].length) addRow(key); else render();
+    }
+
+    function exportCsv(key) {
+      const rows = state[key] || [];
+      if (!rows.length) return;
+      const headers = Object.keys(rows[0]).filter(h => h !== 'id');
+      const csv = [headers.join(',')].concat(rows.map(row => headers.map(h => csvEscape(row[h])).join(','))).join('\n');
+      downloadFile(csv, `${key}.csv`, 'text/csv;charset=utf-8;');
+    }
+
+    function csvEscape(value) {
+      const text = String(value ?? '');
+      return /[",\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+    }
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        const next = text[i + 1];
+        if (char === '"') {
+          if (inQuotes && next === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          row.push(current);
+          current = '';
+        } else if ((char === '\n' || char === '\r') && !inQuotes) {
+          if (char === '\r' && next === '\n') i++;
+          row.push(current);
+          if (row.some(v => v !== '')) rows.push(row);
+          row = [];
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      if (current.length || row.length) {
+        row.push(current);
+        if (row.some(v => v !== '')) rows.push(row);
+      }
+      return rows;
+    }
+
+    function importCsv(key, file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const rows = parseCSV(reader.result);
+        if (!rows.length) return;
+        const headers = rows[0];
+        const data = rows.slice(1).map(values => {
+          const obj = { id: uid() };
+          headers.forEach((header, i) => {
+            let val = values[i] ?? '';
+            if (val === 'true') val = true;
+            if (val === 'false') val = false;
+            obj[header] = val;
+          });
+          return obj;
+        });
+        state[key] = data.length ? data : state[key];
+        render();
+      };
+      reader.readAsText(file);
+    }
+
+    function downloadFile(content, filename, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function renderCharts() {
+      lineChart('netWorthChart', projectNetWorth(), '#1b4332');
+      lineChart('netWorthChartSecondary', projectNetWorth(), '#1b4332');
+      lineChart('savingsChart', projectSavings(), '#40916c');
+      lineChart('savingsChartSecondary', projectSavings(), '#40916c');
+      donutChart('spendingChart', buildSpendingBreakdown());
+      barChart('debtChart', getDebtRecommendations().rows.map(r => ({ label: r.name || 'Debt', value: Number.isFinite(r.payoff.months) ? r.payoff.months : 0 })), '#2d6a4f');
+    }
+
+    function lineChart(id, data, color) {
+      const svg = document.getElementById(id);
+      if (!svg) return;
+      const width = svg.clientWidth || 800;
+      const height = 280;
+      const pad = { top: 20, right: 20, bottom: 30, left: 60 };
+      const maxX = Math.max(...data.map(d => d.month), 1);
+      const maxY = Math.max(...data.map(d => d.value), 1);
+      const minY = Math.min(...data.map(d => d.value), 0);
+      const x = v => pad.left + (v / maxX) * (width - pad.left - pad.right);
+      const y = v => height - pad.bottom - ((v - minY) / (maxY - minY || 1)) * (height - pad.top - pad.bottom);
+      const path = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${x(d.month)} ${y(d.value)}`).join(' ');
+      const zeroY = y(0);
+
+      let grid = '';
+      for (let i = 0; i <= 4; i++) {
+        const val = minY + ((maxY - minY) / 4) * i;
+        const gy = y(val);
+        grid += `<line x1="${pad.left}" y1="${gy}" x2="${width - pad.right}" y2="${gy}" stroke="#e8f0ea" />`;
+        grid += `<text x="${pad.left - 10}" y="${gy + 4}" text-anchor="end" fill="#5f7568" font-size="11">${shortMoney(val)}</text>`;
+      }
+
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      svg.innerHTML = `
+        <rect x="0" y="0" width="${width}" height="${height}" fill="transparent"></rect>
+        ${grid}
+        <line x1="${pad.left}" y1="${zeroY}" x2="${width - pad.right}" y2="${zeroY}" stroke="#cfded4" stroke-dasharray="4 4" />
+        <path d="${path}" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        ${data.map(d => `<circle cx="${x(d.month)}" cy="${y(d.value)}" r="3.5" fill="${color}" />`).join('')}
+      `;
+    }
+
+    function barChart(id, data, color) {
+      const svg = document.getElementById(id);
+      if (!svg) return;
+      const width = svg.clientWidth || 800;
+      const height = 280;
+      const pad = { top: 20, right: 20, bottom: 60, left: 50 };
+      const maxY = Math.max(...data.map(d => d.value), 1);
+      const barWidth = (width - pad.left - pad.right) / Math.max(data.length, 1) * 0.7;
+      const gap = (width - pad.left - pad.right) / Math.max(data.length, 1) * 0.3;
+      const y = v => height - pad.bottom - (v / maxY) * (height - pad.top - pad.bottom);
+      let grid = '';
+      for (let i = 0; i <= 4; i++) {
+        const val = (maxY / 4) * i;
+        const gy = y(val);
+        grid += `<line x1="${pad.left}" y1="${gy}" x2="${width - pad.right}" y2="${gy}" stroke="#e8f0ea" />`;
+        grid += `<text x="${pad.left - 8}" y="${gy + 4}" text-anchor="end" fill="#5f7568" font-size="11">${Math.round(val)}</text>`;
+      }
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      svg.innerHTML = `
+        ${grid}
+        ${data.map((d, i) => {
+          const x = pad.left + i * (barWidth + gap) + gap/2;
+          const barH = height - pad.bottom - y(d.value);
+          const yPos = y(d.value);
+          return `
+            <rect x="${x}" y="${yPos}" width="${barWidth}" height="${barH}" rx="8" fill="${color}" opacity="0.92"></rect>
+            <text x="${x + barWidth/2}" y="${yPos - 6}" text-anchor="middle" fill="#1b4332" font-size="11">${Math.round(d.value)}</text>
+            <text x="${x + barWidth/2}" y="${height - 20}" text-anchor="middle" fill="#5f7568" font-size="11">${truncate(d.label, 14)}</text>
+          `;
+        }).join('')}
+      `;
+    }
+
+    function donutChart(id, segments) {
+      const svg = document.getElementById(id);
+      if (!svg) return;
+      const width = svg.clientWidth || 800;
+      const height = 280;
+      const cx = width / 2;
+      const cy = height / 2;
+      const r = 88;
+      const total = segments.reduce((a,b) => a + b.value, 0) || 1;
+      let startAngle = -Math.PI / 2;
+      const arcs = segments.map(seg => {
+        const angle = (seg.value / total) * Math.PI * 2;
+        const endAngle = startAngle + angle;
+        const largeArc = angle > Math.PI ? 1 : 0;
+        const x1 = cx + r * Math.cos(startAngle);
+        const y1 = cy + r * Math.sin(startAngle);
+        const x2 = cx + r * Math.cos(endAngle);
+        const y2 = cy + r * Math.sin(endAngle);
+        const path = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+        const item = { path, color: seg.color };
+        startAngle = endAngle;
+        return item;
+      });
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      svg.innerHTML = `
+        ${arcs.map(a => `<path d="${a.path}" fill="${a.color}"></path>`).join('')}
+        <circle cx="${cx}" cy="${cy}" r="48" fill="#ffffff"></circle>
+        <text x="${cx}" y="${cy - 4}" text-anchor="middle" fill="#1b4332" font-size="14" font-weight="700">${money(total)}</text>
+        <text x="${cx}" y="${cy + 16}" text-anchor="middle" fill="#5f7568" font-size="12">Monthly total</text>
+      `;
+    }
+
+    function shortMoney(value) {
+      const abs = Math.abs(value);
+      if (abs >= 1000000) return `${value < 0 ? '-' : ''}$${(abs/1000000).toFixed(1)}M`;
+      if (abs >= 1000) return `${value < 0 ? '-' : ''}$${(abs/1000).toFixed(0)}k`;
+      return `${value < 0 ? '-' : ''}$${abs.toFixed(0)}`;
+    }
+
+    function truncate(text, max) {
+      if (!text) return '';
+      return text.length > max ? text.slice(0, max - 1) + '…' : text;
+    }
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      downloadFile(JSON.stringify(state, null, 2), 'lrmo-financial-planner-backup.json', 'application/json');
+    });
+
+    document.getElementById('importBtn').addEventListener('click', () => {
+      document.getElementById('jsonFileInput').click();
+    });
+
+    document.getElementById('jsonFileInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          state = deepMerge(structuredClone(defaultState), parsed);
+          render();
+        } catch {
+          alert('That JSON backup could not be imported.');
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (!confirm('This will erase all saved planner data from this browser. Continue?')) return;
+      state = structuredClone(defaultState);
+      render();
+    });
+
+    document.getElementById('csvImportInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file && currentCsvTarget) importCsv(currentCsvTarget, file);
+      e.target.value = '';
+      currentCsvTarget = null;
+    });
+
+    render();
+  </script>
+</body>
+</html>
