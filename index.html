@@ -1341,7 +1341,15 @@
 
     function handleFieldCommit(e) {
       handleFieldInput(e);
+      const active = document.activeElement;
+      const focusKey = active ? active.getAttribute('data-key') : null;
+      const focusIndex = active ? active.getAttribute('data-index') : null;
+      const focusField = active ? active.getAttribute('data-field') : null;
       render();
+      if (focusKey && focusIndex !== null && focusField) {
+        const el = document.querySelector('[data-key="' + focusKey + '"][data-index="' + focusIndex + '"][data-field="' + focusField + '"]');
+        if (el) el.focus();
+      }
     }
 
     function normalizeSettingsValue(target) {
