@@ -493,31 +493,37 @@
     }
 
     function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return structuredClone(defaultState);
-        const parsed = JSON.parse(raw);
-        return deepMerge(structuredClone(defaultState), parsed);
-      } catch (e) {
-        console.warn('Failed to load saved state.', e);
-        return structuredClone(defaultState);
-      }
+              try {
+                          const raw = localStorage.getItem(STORAGE_KEY);
+                          if (!raw) return structuredClone(defaultState);
+                          const parsed = JSON.parse(raw);
+                          const merged = deepMerge(structuredClone(defaultState), parsed);
+                          if (typeof merged.activeTab !== 'string' || !tabMeta.some(t => t.id === merged.activeTab)) {
+                                        merged.activeTab = 'dashboard';
+                          }
+                          return merged;
+              } catch (e) {
+                          console.warn('Failed to load saved state.', e);
+                          return structuredClone(defaultState);
+              }
+    }
     }
 
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
-    function deepMerge(base, override) {
-      if (Array.isArray(base)) return Array.isArray(override) ? override : base;
-      const output = { ...base };
-      if (override && typeof override === 'object') {
-        Object.keys(override).forEach(key => {
-          output[key] = key in base ? deepMerge(base[key], override[key]) : override[key];
-        });
+      function deepMerge(base, override) {
+                if (Array.isArray(base)) return Array.isArray(override) ? override : base;
+                if (!base || typeof base !== 'object') return override !== undefined ? override : base;
+                const output = { ...base };
+                if (override && typeof override === 'object' && !Array.isArray(override)) {
+                            Object.keys(override).forEach(key => {
+                                          output[key] = key in base ? deepMerge(base[key], override[key]) : override[key];
+                            });
+                }
+                return output;
       }
-      return output;
-    }
 
     function n(value) {
       const parsed = parseFloat(value);
