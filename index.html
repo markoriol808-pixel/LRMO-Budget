@@ -515,7 +515,7 @@
 
       function deepMerge(base, override) {
                 if (Array.isArray(base)) return Array.isArray(override) ? override : base;
-                if (!base || typeof base !== 'object') return override !== undefined ? override : base;
+                if (!base || typeof base !== 'object') { if (override === undefined) return base; if (typeof override !== typeof base) return base; return override; }
                 const output = { ...base };
                 if (override && typeof override === 'object' && !Array.isArray(override)) {
                             Object.keys(override).forEach(key => {
