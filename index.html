@@ -438,7 +438,8 @@
       { id: 'savings', label: 'Savings', subtitle: 'Keep all cash and long-term accounts on one tab with projections.' },
       { id: 'netWorth', label: 'Net Worth', subtitle: 'Monitor assets, liabilities, and long-range household position.' },
       { id: 'paycheckPlanner', label: 'Paycheck Planner', subtitle: 'See where each biweekly paycheck should go for maximum impact without missing bills.' },
-      { id: 'settings', label: 'Settings', subtitle: 'Control assumptions for growth, debt strategy, and planning preferences.' }
+      { id: 'uploadDownload', label: 'Upload/Download', subtitle: 'Export CSV backups or import CSV files for any table.' },
+            { id: 'settings', label: 'Settings', subtitle: 'Control assumptions for growth, debt strategy, and planning preferences.' }
     ];
 
     const frequencyMultipliers = {
@@ -820,7 +821,8 @@
         <div id="savings" class="tab-panel ${state.activeTab === 'savings' ? 'active' : ''}">${renderSavingsTab()}</div>
         <div id="netWorth" class="tab-panel ${state.activeTab === 'netWorth' ? 'active' : ''}">${renderNetWorthTab()}</div>
         <div id="paycheckPlanner" class="tab-panel ${state.activeTab === 'paycheckPlanner' ? 'active' : ''}">${renderPlannerTab()}</div>
-        <div id="settings" class="tab-panel ${state.activeTab === 'settings' ? 'active' : ''}">${renderSettingsTab()}</div>
+                  <div id="uploadDownload" class="tab-panel ${state.activeTab === 'uploadDownload' ? 'active' : ''}">${renderUploadDownloadTab()}</div>
+                  <div id="settings" class="tab-panel ${state.activeTab === 'settings' ? 'active' : ''}">${renderSettingsTab()}</div>
       `;
       bindEvents();
       renderCharts();
@@ -1223,7 +1225,40 @@
       `;
     }
 
-    function renderEditableTableSection({ title, subtitle, key, columns, summary }) {
+function renderUploadDownloadTab() {
+        const items = [
+          { key: 'income', label: 'Income Sources' },
+          { key: 'monthlyBills', label: 'Recurring Bills' },
+          { key: 'variableExpenses', label: 'Variable Expenses' },
+          { key: 'debts', label: 'Debts' },
+          { key: 'savings', label: 'Savings, Retirement, and Education Accounts' },
+          { key: 'assets', label: 'Other Assets' },
+          { key: 'liabilities', label: 'Other Liabilities' }
+                ];
+        return `
+                <div class="card">
+                          <div class="section-header">
+                                      <div>
+                                                    <h3>Export or Import Data</h3>
+                                                                  <div class="card-subtitle">Download a CSV backup of any table, or import a CSV to replace its contents.</div>
+                                                                              </div>
+                                                                                        </div>
+                                                                                                  <div>
+                                                                                                              ${items.map(item => `
+                                                                                                                            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border);">
+                                                                                                                                            <div style="font-weight:600;">${item.label}</div>
+                                                                                                                                                            <div style="display:flex; gap:10px;">
+                                                                                                                                                                              <button class="btn-ghost csv-export" data-target="${item.key}">Export CSV</button>
+                                                                                                                                                                                                <button class="btn-secondary csv-import" data-target="${item.key}">Import CSV</button>
+                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                              </div>
+                                                                                                                                                                                                                                          `).join('')}
+                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                  `;
+}
+    
+        function renderEditableTableSection({ title, subtitle, key, columns, summary }) {
       const rows = state[key] || [];
       return `
         <div class="card">
@@ -1231,11 +1266,6 @@
             <div>
               <h3>${title}</h3>
               <div class="card-subtitle">${subtitle}</div>
-            </div>
-            <div class="section-actions">
-              <button class="btn-ghost add-row" data-key="${key}">Add Row</button>
-              <button class="btn-ghost csv-export" data-target="${key}">Export CSV</button>
-              <button class="btn-secondary csv-import" data-target="${key}">Import CSV</button>
             </div>
           </div>
           <div class="table-wrap">
@@ -1301,6 +1331,7 @@
       document.querySelectorAll('input[data-key], select[data-key]').forEach(el => {
         el.addEventListener('input', handleFieldInput);
         el.addEventListener('change', handleFieldCommit);
+                el.addEventListener('keydown', handleFieldKeydown);
       });
 
       document.querySelectorAll('.add-row').forEach(btn => {
@@ -1356,7 +1387,20 @@
         if (el) el.focus();
       }
     }
+function handleFieldKeydown(e) {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        const key = e.target.dataset.key;
+        const field = e.target.dataset.field;
+        const index = Number(e.target.dataset.index);
+        if (index === state[key].length - 1) {
+                  addRow(key);
+        }
+        const nextEl = document.querySelector('[data-key="' + key + '"][data-index="' + (index + 1) + '"][data-field="' + field + '"]');
+        if (nextEl) nextEl.focus();
+}
 
+        
     function normalizeSettingsValue(target) {
       if (target.type === 'checkbox') return target.checked;
       let value = target.value;
